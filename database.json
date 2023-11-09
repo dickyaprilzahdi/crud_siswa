@@ -1,0 +1,22 @@
+{
+  "students": [
+    {
+      "name": "Aisyah",
+      "class": "S1",
+      "major": "Teknik Komputer dan Jaringan",
+      "id": "4YikRfM"
+    },
+    {
+      "name": "Dicky April Zahdi",
+      "class": "S3",
+      "major": "Rekayasa Perangkat Lunak",
+      "id": "mFVGI30"
+    },
+    {
+      "name": "Nur",
+      "class": "SMA",
+      "major": "Teknologi Informasi",
+      "id": "RXoSMP2"
+    }
+  ]
+}

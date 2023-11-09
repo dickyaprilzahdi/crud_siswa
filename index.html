@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi CRUD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-input {
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Aplikasi Pendaftaran Siswa</h2>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi facilis consequuntur exercitationem velit sit
+        aspernatur nam inventore dolore dolor? Et facere tempora ut ullam inventore odio. Ad, consequatur aperiam.
+        Necessitatibus.</p>
+    <div>
+        <input type="text" id="name" placeholder="Tulis nama lengkap disini...">
+        <input type="text" id="class" placeholder="Tulis kelas disini...">
+        <select id="major">
+            <option value="">Pilih</option>
+            <option value="Teknik Komputer dan Jaringan">Teknik Komputer dan Jaringan</option>
+            <option value="Rekayasa Perangkat Lunak">Rekayasa Perangkat Lunak</option>
+            <option value="Sistem Informasi">Sistem Informasi</option>
+            <option value="Teknologi Informasi">Teknologi Informasi</option>
+        </select>
+        <button id="button" onClick="saveData()">Simpan</button>
+    </div>
+    <table style="margin-top: 15px;">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Lengkap</th>
+                <th>Kelas</th>
+                <th>Jurusan</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="result"></tbody>
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+
+        // Menampilkan data
+        const getData = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/students');
+                const students = response.data;
+                let bucket = '';
+                if (students.length > 0) {
+                    students.forEach((student, index) => {
+                        bucket += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${student.name}</td>
+                                <td>${student.class}</td>
+                                <td>${student.major}</td>
+                                <td>
+                                    <button onclick="editData('${student.id}', '${student.name}', '${student.class}', '${student.major}')">Edit</button>
+                                    <button onclick="deleteData('${student.id}')">Hapus</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    bucket += `
+                        <tr>
+                            <td colspan="5" style="text-align: center">Data tidak ditemukan</td>
+                        </tr>
+                    `;
+                }
+                document.getElementById('result').innerHTML = bucket;
+            } catch (error) {
+                const errorMessage = error.message || 'Terjadi kesalahan';
+                let bucket = `
+                    <tr>
+                        <td colspan="5" style="text-align: center">${errorMessage}</td>
+                    </tr>
+                `;
+                document.getElementById('result').innerHTML = bucket;
+            }
+        };
+
+        // Panggil fungsi getData untuk mengambil data
+        getData();
+
+        // Menyimpan data
+        const saveData = async () => {
+            let nameForm = document.getElementById('name').value;
+            let classForm = document.getElementById('class').value;
+            let majorForm = document.getElementById('major').value;
+            try {
+                const response = await axios.post('http://localhost:3000/students', {
+                    name: nameForm,
+                    class: classForm,
+                    major: majorForm
+                });
+                console.log(response);
+            } catch (error) {
+                console.error('Terjadi kesalahan:', error);
+            }
+        };
+
+        // Mengedit Data
+        const editData = (id, name, kelas, major) => {
+            document.getElementById('name').value = name;
+            document.getElementById('class').value = kelas;
+            document.getElementById('major').value = major;
+            const button = document.getElementById('button');
+            button.innerText = 'Ubah';
+            button.onclick = () => updateData(id);
+        };
+
+        // Mengupdate Data
+        const updateData = async (id) => {
+            try {
+                const nameForm = document.getElementById('name').value;
+                const classForm = document.getElementById('class').value;
+                const majorForm = document.getElementById('major').value;
+                const response = await axios.patch(`http://localhost:3000/students/${id}`, {
+                    name: nameForm,
+                    class: classForm,
+                    major: majorForm
+                });
+                console.log(response);
+                const button = document.getElementById('button');
+                button.innerText = 'Simpan'; // Kembalikan teks tombol ke "Simpan"
+                button.onclick = () => saveData(); // Kembalikan onClick handler ke "saveData"
+            } catch (error) {
+                console.error('Terjadi kesalahan:', error);
+            }
+        };
+
+        // Menghapus data
+        const deleteData = async (id) => {
+            try {
+                const response = await axios.delete(`http://localhost:3000/students/${id}`);
+                console.log(response);
+            } catch (error) {
+                console.error('Terjadi kesalahan:', error);
+            }
+        };
+
+    </script>
+</body>
+
+</html>
